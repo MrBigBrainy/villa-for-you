@@ -109,7 +109,7 @@ export default function AddResidence() {
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
-                placeholder="e.g., $2,500,000"
+                placeholder="e.g., ฿25,000,000"
                 className="w-full border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900"
                 required
               />

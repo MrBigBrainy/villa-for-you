@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { notFound } from "next/navigation";
@@ -26,14 +26,15 @@ interface Residence {
   sold?: boolean;
 }
 
-export default function ResidencePage({ params }: { params: { id: string } }) {
+export default function ResidencePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [residence, setResidence] = useState<Residence | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchResidence = async () => {
       try {
-        const docRef = doc(db, "residences", params.id);
+        const docRef = doc(db, "residences", id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -49,7 +50,7 @@ export default function ResidencePage({ params }: { params: { id: string } }) {
     };
 
     fetchResidence();
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
     return (

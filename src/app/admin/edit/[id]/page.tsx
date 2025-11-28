@@ -1,16 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { auth, db } from "@/firebase/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, db, storage } from "@/firebase/firebase";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
-export default function EditResidence({ params }: { params: { id: string } }) {
+export default function EditResidence({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -36,12 +42,12 @@ export default function EditResidence({ params }: { params: { id: string } }) {
 
   const fetchResidence = async () => {
     try {
-      const docRef = doc(db, "residences", params.id);
+      const docRef = doc(db, "residences", id);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        setFormData({
+        const residenceData = {
           name: data.name,
           description: data.description,
           price: data.price,
@@ -50,15 +56,58 @@ export default function EditResidence({ params }: { params: { id: string } }) {
           beds: data.features.beds,
           baths: data.features.baths,
           sqft: data.features.sqft,
-        });
+        };
+        setFormData(residenceData);
+        setImagePreview(data.image);
+        toast.success("Residence data loaded successfully");
       } else {
-        alert("Residence not found");
+        toast.error("Residence not found");
         router.push("/admin");
       }
     } catch (error) {
       console.error("Error fetching residence:", error);
+      toast.error("Failed to load residence data");
     } finally {
       setFetching(false);
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (): Promise<string> => {
+    if (!imageFile) return formData.image;
+
+    setUploading(true);
+    try {
+      const timestamp = Date.now();
+      const fileName = `residences/${timestamp}_${imageFile.name}`;
+      const storageRef = ref(storage, fileName);
+      
+      await uploadBytes(storageRef, imageFile);
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      toast.success("Image uploaded successfully");
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Failed to upload image");
+      throw error;
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -66,13 +115,22 @@ export default function EditResidence({ params }: { params: { id: string } }) {
     e.preventDefault();
     setLoading(true);
 
+    const loadingToast = toast.loading("Updating residence...");
+
     try {
-      const docRef = doc(db, "residences", params.id);
+      let imageUrl = formData.image;
+      
+      // Upload new image if selected
+      if (imageFile) {
+        imageUrl = await uploadImage();
+      }
+
+      const docRef = doc(db, "residences", id);
       await updateDoc(docRef, {
         name: formData.name,
         description: formData.description,
         price: formData.price,
-        image: formData.image,
+        image: imageUrl,
         location: formData.location,
         features: {
           beds: Number(formData.beds),
@@ -80,10 +138,15 @@ export default function EditResidence({ params }: { params: { id: string } }) {
           sqft: Number(formData.sqft),
         },
       });
-      router.push("/admin");
+      
+      toast.success("Residence updated successfully!", { id: loadingToast });
+      
+      setTimeout(() => {
+        router.push("/admin");
+      }, 1000);
     } catch (error) {
       console.error("Error updating residence:", error);
-      alert("Failed to update residence");
+      toast.error("Failed to update residence", { id: loadingToast });
     } finally {
       setLoading(false);
     }
@@ -103,6 +166,8 @@ export default function EditResidence({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-zinc-50">
+      <Toaster position="top-right" />
+      
       <div className="bg-white border-b border-zinc-200">
         <div className="container mx-auto px-6 py-4">
           <Link href="/admin" className="inline-flex items-center gap-2 text-sm hover:text-zinc-600">
@@ -117,6 +182,35 @@ export default function EditResidence({ params }: { params: { id: string } }) {
 
         <form onSubmit={handleSubmit} className="bg-white border border-zinc-200 p-8">
           <div className="space-y-6">
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm text-zinc-600 mb-2">Residence Image</label>
+              {imagePreview && (
+                <div className="mb-4 relative w-full h-48 bg-zinc-100">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex items-center gap-4">
+                <label className="flex-1 cursor-pointer">
+                  <div className="flex items-center justify-center gap-2 border border-zinc-300 p-3 hover:bg-zinc-50 transition-colors">
+                    <Upload className="w-4 h-4" />
+                    <span className="text-sm">Choose New Image</span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              <p className="text-xs text-zinc-500 mt-2">Max file size: 5MB. Supported formats: JPG, PNG, WebP</p>
+            </div>
+
             <div>
               <label className="block text-sm text-zinc-600 mb-1">Name</label>
               <input
@@ -148,20 +242,7 @@ export default function EditResidence({ params }: { params: { id: string } }) {
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
-                placeholder="e.g., $2,500,000"
-                className="w-full border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm text-zinc-600 mb-1">Image URL</label>
-              <input
-                type="text"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                placeholder="e.g., /1.jpg"
+                placeholder="e.g., ฿25,000,000"
                 className="w-full border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900"
                 required
               />
@@ -222,10 +303,10 @@ export default function EditResidence({ params }: { params: { id: string } }) {
             <div className="flex gap-4 pt-4">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || uploading}
                 className="flex-1 bg-zinc-900 text-white py-3 hover:bg-zinc-800 transition-colors disabled:opacity-50"
               >
-                {loading ? "Updating..." : "Update Residence"}
+                {loading ? "Updating..." : uploading ? "Uploading..." : "Update Residence"}
               </button>
               <Link
                 href="/admin"

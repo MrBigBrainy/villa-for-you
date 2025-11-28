@@ -8,6 +8,7 @@ import { auth, db } from "@/firebase/firebase";
 import { useAuthStore } from "@/store/useAuthStore";
 import Link from "next/link";
 import { Pencil, Trash2, CheckCircle, LogOut, Plus } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface Residence {
   id: string;
@@ -96,11 +97,7 @@ export default function AdminDashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
@@ -110,6 +107,12 @@ export default function AdminDashboard() {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-serif">Admin Dashboard</h1>
           <div className="flex items-center gap-4">
+            <Link
+              href="/admin/settings"
+              className="text-sm text-zinc-600 hover:text-zinc-900"
+            >
+              Settings
+            </Link>
             <span className="text-sm text-zinc-500">{user?.email}</span>
             <button
               onClick={handleLogout}
@@ -144,6 +147,7 @@ export default function AdminDashboard() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50">
+                  <th className="text-left p-4 text-sm font-medium text-zinc-600">Image</th>
                   <th className="text-left p-4 text-sm font-medium text-zinc-600">Name</th>
                   <th className="text-left p-4 text-sm font-medium text-zinc-600">Location</th>
                   <th className="text-left p-4 text-sm font-medium text-zinc-600">Price</th>
@@ -154,6 +158,15 @@ export default function AdminDashboard() {
               <tbody>
                 {residences.map((residence) => (
                   <tr key={residence.id} className="border-b border-zinc-100 hover:bg-zinc-50">
+                    <td className="p-4">
+                      <div className="w-16 h-16 relative bg-zinc-100 overflow-hidden">
+                        <img 
+                          src={residence.image} 
+                          alt={residence.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </td>
                     <td className="p-4">
                       <div className="font-medium">{residence.name}</div>
                       <div className="text-xs text-zinc-500">
