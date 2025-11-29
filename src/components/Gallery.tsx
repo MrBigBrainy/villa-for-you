@@ -23,12 +23,12 @@ export default function Gallery() {
   // More organic positions with increased vertical spread
   // Using 'vw' and 'vh' for better responsiveness
   const positions = [
-    { top: "10%", left: "10%", rotate: -8 },
-    { top: "25%", left: "45%", rotate: 5 },
-    { top: "15%", left: "80%", rotate: -5 },
-    { top: "60%", left: "15%", rotate: 8 },
-    { top: "75%", left: "55%", rotate: -3 },
-    { top: "65%", left: "85%", rotate: 6 },
+    { top: "20%", left: "20%", rotate: -6 },
+    { top: "30%", left: "45%", rotate: 4 },
+    { top: "25%", left: "70%", rotate: -4 },
+    { top: "55%", left: "25%", rotate: 6 },
+    { top: "65%", left: "50%", rotate: -2 },
+    { top: "60%", left: "75%", rotate: 5 },
   ];
 
   return (

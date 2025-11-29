@@ -1,16 +1,16 @@
-import Link from "next/link";
+"use client";
+
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export default function Footer() {
+  const { settings } = useSiteSettings();
+
   return (
-    <footer className="bg-black text-white py-12 border-t border-zinc-800">
-      <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
-        <div className="mb-4 md:mb-0">
-          <Link href="/" className="text-2xl font-bold tracking-widest uppercase">
-            Villa Pik
-          </Link>
-        </div>
+    <footer className="bg-zinc-950 text-white py-12 border-t border-white/10">
+      <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="text-2xl font-serif">{settings.webName}</div>
         <div className="text-zinc-500 text-sm">
-          &copy; {new Date().getFullYear()} Villa Pik. All rights reserved.
+          © {new Date().getFullYear()} {settings.webName}. All rights reserved.
         </div>
       </div>
     </footer>

@@ -94,16 +94,14 @@ export default function Hero({ residences = [] }: { residences?: Residence[] }) 
                   View Details
                   <ArrowRight className="w-4 h-4" />
                 </Link>
-                <div className="text-white font-serif text-2xl">
-                  {activeResidence.price}
-                </div>
+               
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
 
         {/* Right/Bottom: Thumbnails Strip */}
-        <div className="lg:col-span-12 flex flex-col justify-end pb-8">
+        <div className="lg:col-span-5 lg:col-start-8 flex flex-col justify-end pb-8">
           <div className="w-full overflow-x-auto no-scrollbar pb-4">
             <div className="flex gap-4 px-4 min-w-max">
               {heroResidences.map((residence, index) => (

@@ -6,12 +6,14 @@ import { auth } from "@/firebase/firebase";
 import { useRouter } from "next/navigation";
 import { validateRegistrationKey } from "@/app/actions/auth";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secretKey, setSecretKey] = useState("");
   const [error, setError] = useState("");
+  const [focusedInput, setFocusedInput] = useState<"email" | "password" | "none">("none");
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -37,52 +39,86 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50">
-      <div className="bg-white p-8 border border-zinc-200 w-full max-w-md">
-        <h1 className="text-2xl font-serif mb-6 text-center">Admin Registration</h1>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        <form onSubmit={handleRegister} className="space-y-4">
-          <div>
-            <label className="block text-sm text-zinc-600 mb-1">Email</label>
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50 overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, rotateY: 90 }}
+        animate={{ opacity: 1, rotateY: 0 }}
+        exit={{ opacity: 0, rotateY: -90 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
+        className="bg-white p-8 rounded-2xl shadow-2xl border border-zinc-100 w-full max-w-md relative"
+      >
+   
+
+        <h1 className="text-3xl font-serif mb-8 text-center mt-8">Join the Team</h1>
+        
+        {error && (
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-red-500 text-sm mb-4 text-center bg-red-50 py-2 rounded-lg"
+          >
+            {error}
+          </motion.p>
+        )}
+
+        <form onSubmit={handleRegister} className="space-y-6">
+          <div className="space-y-2">
+            <label className="block text-xs uppercase tracking-widest text-zinc-500 font-medium ml-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900"
+              onFocus={() => setFocusedInput("email")}
+              onBlur={() => setFocusedInput("none")}
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all"
+              placeholder="new.admin@villapik.com"
               required
             />
           </div>
-          <div>
-            <label className="block text-sm text-zinc-600 mb-1">Password</label>
+          
+          <div className="space-y-2">
+            <label className="block text-xs uppercase tracking-widest text-zinc-500 font-medium ml-1">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900"
+              onFocus={() => setFocusedInput("password")}
+              onBlur={() => setFocusedInput("none")}
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all"
+              placeholder="••••••••"
               required
             />
           </div>
-          <div>
-            <label className="block text-sm text-zinc-600 mb-1">Secret Key</label>
+
+          <div className="space-y-2">
+            <label className="block text-xs uppercase tracking-widest text-zinc-500 font-medium ml-1">Secret Key</label>
             <input
               type="password"
               value={secretKey}
               onChange={(e) => setSecretKey(e.target.value)}
-              className="w-full border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900"
+              onFocus={() => setFocusedInput("password")} // Treat secret key like password (hide eyes)
+              onBlur={() => setFocusedInput("none")}
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all"
+              placeholder="••••••••"
               required
             />
           </div>
+
           <button
             type="submit"
-            className="w-full bg-zinc-900 text-white py-2 hover:bg-zinc-800 transition-colors"
+            className="w-full bg-zinc-900 text-white py-4 rounded-xl font-medium tracking-wide hover:bg-zinc-800 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-zinc-900/20"
           >
-            Register
+            Create Account
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-zinc-500">
-          Already have an account? <Link href="/login" className="text-zinc-900 underline">Login</Link>
+
+        <p className="mt-8 text-center text-sm text-zinc-500">
+          Already have an account?{" "}
+          <Link href="/login" className="text-zinc-900 font-medium hover:underline decoration-2 underline-offset-4">
+            Sign In
+          </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }
