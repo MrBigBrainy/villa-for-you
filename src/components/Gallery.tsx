@@ -20,19 +20,19 @@ export default function Gallery() {
     "/9.jpg",
   ];
 
-  // Define the target positions (in percentages) for the dispersed state
-  // We'll use a 2x3 grid roughly
+  // More organic positions with increased vertical spread
+  // Using 'vw' and 'vh' for better responsiveness
   const positions = [
-    { top: "15%", left: "15%", rotate: -5 },
-    { top: "15%", left: "50%", rotate: 0 },
-    { top: "15%", left: "85%", rotate: 5 },
-    { top: "60%", left: "15%", rotate: 5 },
-    { top: "60%", left: "50%", rotate: 0 },
-    { top: "60%", left: "85%", rotate: -5 },
+    { top: "10%", left: "10%", rotate: -8 },
+    { top: "25%", left: "45%", rotate: 5 },
+    { top: "15%", left: "80%", rotate: -5 },
+    { top: "60%", left: "15%", rotate: 8 },
+    { top: "75%", left: "55%", rotate: -3 },
+    { top: "65%", left: "85%", rotate: 6 },
   ];
 
   return (
-    <section ref={containerRef} className="relative h-[300vh] bg-zinc-50">
+    <section ref={containerRef} className="relative h-[200vh] bg-zinc-50">
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col items-center justify-center">
         <motion.div 
           style={{ opacity: useTransform(scrollYProgress, [0, 0.2], [1, 0]) }}
@@ -51,19 +51,7 @@ export default function Gallery() {
             const pos = positions[index];
             
             // Randomize initial stack slightly
-            const initialRotate = (index % 2 === 0 ? 1 : -1) * (Math.random() * 10);
-            
-            // Transform values
-            // x: from center (50%) to target pos.left
-            // We need to calculate the translation. 
-            // Easier approach: Position them absolute at center, then translate OUT.
-            
-            // Let's assume the "center" is 50% 50%.
-            // We want to interpolate from "50%" to `pos.left`.
-            // Since we can't easily interpolate CSS strings like "50%" to "15%" in all cases with simple math without calc,
-            // we'll use `useTransform` to map 0-1 to specific percentage strings if supported, or just use `left`/`top` directly.
-            
-            // Framer motion supports animating CSS variables or direct style props.
+            const initialRotate = (index % 2 === 0 ? 1 : -1) * (Math.random() * 5);
             
             const targetTop = pos.top;
             const targetLeft = pos.left;
@@ -72,9 +60,8 @@ export default function Gallery() {
             const top = useTransform(scrollYProgress, [0, 1], ["50%", targetTop]);
             const left = useTransform(scrollYProgress, [0, 1], ["50%", targetLeft]);
             const rotate = useTransform(scrollYProgress, [0, 1], [initialRotate, pos.rotate]);
-            const scale = useTransform(scrollYProgress, [0, 1], [1, 1]); // Maybe scale up slightly?
+            const scale = useTransform(scrollYProgress, [0, 1], [1, 1]);
             
-            // Add a slight z-index change so they don't clip weirdly when stacked
             const zIndex = images.length - index;
 
             return (
@@ -86,10 +73,10 @@ export default function Gallery() {
                   rotate,
                   scale,
                   zIndex,
-                  x: "-50%", // Center the element on its anchor point
+                  x: "-50%",
                   y: "-50%" 
                 }}
-                className="absolute w-[300px] h-[200px] md:w-[400px] md:h-[300px] shadow-2xl rounded-lg overflow-hidden"
+                className="absolute w-[60vw] h-[40vw] md:w-[25vw] md:h-[18vw] shadow-2xl rounded-lg overflow-hidden"
               >
                 <Image
                   src={src}

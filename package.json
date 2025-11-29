@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@line/liff": "^2.27.3",
     "firebase": "^12.6.0",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.555.0",
