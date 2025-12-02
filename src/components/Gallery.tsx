@@ -51,7 +51,8 @@ export default function Gallery() {
             const pos = positions[index];
             
             // Randomize initial stack slightly
-            const initialRotate = (index % 2 === 0 ? 1 : -1) * (Math.random() * 5);
+            // Randomize initial stack slightly (deterministic)
+            const initialRotate = (index % 2 === 0 ? 1 : -1) * ((index * 1.5) % 5);
             
             const targetTop = pos.top;
             const targetLeft = pos.left;
