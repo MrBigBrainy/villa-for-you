@@ -31,3 +31,12 @@ h1, h2, h3, h4, h5, h6 {
     scrollbar-width: none;
   }
 }
+
+/* Smooth scroll offset for fixed navbar */
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 80px;
+}

@@ -35,7 +35,7 @@ export default function Hero({ residences = [] }: { residences?: Residence[] }) 
   const activeResidence = heroResidences[currentIndex];
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-zinc-900">
+    <section id="home" className="relative h-screen w-full overflow-hidden bg-zinc-900">
       {/* Main Background Image */}
       <AnimatePresence mode="popLayout">
         <motion.div
