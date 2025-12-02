@@ -134,6 +134,16 @@ export default function Hero({ residences = [] }: { residences?: Residence[] }) 
                   </div>
                 </motion.div>
               ))}
+              
+              {/* Scroll Indicator / "Half Box" */}
+              <div className="w-24 h-64 md:w-32 md:h-80 flex-shrink-0 flex items-center justify-center opacity-50">
+                <div className="flex flex-col items-center gap-2 text-white/50">
+                  <ArrowRight className="w-6 h-6 animate-pulse" />
+                  <span className="text-xs uppercase tracking-widest writing-vertical-rl rotate-180">
+                    Scroll for more
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

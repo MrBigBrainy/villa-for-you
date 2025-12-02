@@ -6,14 +6,13 @@ import { db } from "@/firebase/firebase";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Bed, Bath, Maximize, MapPin, ArrowLeft, Check, Calendar, Star, Share2, Heart } from "lucide-react";
+import { Bed, Bath, Maximize, MapPin, ArrowLeft, Check, Calendar, Star, Share2, Heart, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Contact from "@/components/Contact";
 import ReservationModal from "@/components/ReservationModal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import toast, { Toaster } from "react-hot-toast";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Residence {
   id: string;
@@ -28,6 +27,7 @@ interface Residence {
     baths: number;
     sqft: number;
   };
+  amenities?: string[];
   sold?: boolean;
 }
 
@@ -37,6 +37,39 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeImage, setActiveImage] = useState<string>("");
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [currentLightboxIndex, setCurrentLightboxIndex] = useState(0);
+
+  const openLightbox = (index: number) => {
+    setCurrentLightboxIndex(index);
+    setIsLightboxOpen(true);
+  };
+
+  const closeLightbox = () => setIsLightboxOpen(false);
+
+  const nextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!residence?.subImages) return;
+    setCurrentLightboxIndex((prev) => (prev + 1) % residence.subImages!.length);
+  };
+
+  const prevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!residence?.subImages) return;
+    setCurrentLightboxIndex((prev) => (prev - 1 + residence.subImages!.length) % residence.subImages!.length);
+  };
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isLightboxOpen) return;
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") nextImage();
+      if (e.key === "ArrowLeft") prevImage();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isLightboxOpen]);
 
   useEffect(() => {
     const fetchResidence = async () => {
@@ -80,8 +113,7 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
     return null;
   }
 
-  // Generate Google Maps embed URL from location
-  const mapsUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyASn2uBzg3uFUVALYyMem6fGN7sr7J09fQ&q=${encodeURIComponent(residence.location)}`;
+
 
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -109,7 +141,11 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          className="absolute inset-0"
+          className="absolute inset-0 cursor-zoom-in"
+          onClick={() => {
+            const index = residence.subImages?.indexOf(activeImage || residence.image);
+            openLightbox(index !== -1 && index !== undefined ? index : 0);
+          }}
         >
           <Image
             src={activeImage || residence.image}
@@ -133,7 +169,7 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 text-white">
+        <div className="absolute bottom-0 left-0 right-0 p-8 pb-24 md:px-16 md:pt-16 md:pb-32 text-white">
           <div className="container mx-auto">
             <motion.div 
               initial="hidden"
@@ -154,52 +190,83 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
               <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl lg:text-8xl font-serif mb-6 leading-tight">
                 {residence.name}
               </motion.h1>
-              
-              <motion.div variants={fadeIn} className="flex flex-wrap items-center gap-8 text-lg">
-                <div className="flex items-center gap-2">
-                  <Bed className="w-5 h-5 opacity-80" />
-                  <span>{residence.features.beds} Bedrooms</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Bath className="w-5 h-5 opacity-80" />
-                  <span>{residence.features.baths} Bathrooms</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Maximize className="w-5 h-5 opacity-80" />
-                  <span>{residence.features.sqft} sqft</span>
-                </div>
-              </motion.div>
             </motion.div>
           </div>
         </div>
       </div>
 
-      {/* Gallery Thumbs (Floating) */}
-      <div className="container mx-auto px-6 -mt-16 relative z-10 mb-16">
+      {/* Gallery Thumbs (Floating Horizontal) */}
+      <div className="container mx-auto px-6 -mt-12 lg:-mt-16 relative z-10 mb-12">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-white p-4 rounded-xl shadow-xl border border-zinc-100"
+          transition={{ duration: 0.8 }}
         >
-          <div className="grid grid-cols-4 md:grid-cols-5 gap-4">
+          <div 
+            className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {residence.subImages?.map((img, idx) => (
-              <button
+              <motion.button
                 key={idx}
-                onClick={() => setActiveImage(img)}
-                className={`relative aspect-[4/3] rounded-lg overflow-hidden group ${activeImage === img ? 'ring-2 ring-zinc-900' : ''}`}
+                onClick={() => {
+                  setActiveImage(img);
+                  openLightbox(idx);
+                }}
+                className="relative flex-shrink-0 w-64 aspect-[4/3] rounded-xl overflow-hidden group snap-start cursor-zoom-in shadow-lg border-2 border-white"
+                whileHover={{ scale: 1.02, y: -5 }}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
               >
                 <Image
                   src={img}
                   alt={`View ${idx + 1}`}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className={`absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors ${activeImage === img ? 'bg-transparent' : ''}`} />
-              </button>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                   <Maximize className="w-8 h-8 text-white drop-shadow-lg" />
+                </div>
+              </motion.button>
             ))}
+            
+            {/* Spacer to show "half" effect if needed, or just padding */}
+            <div className="w-4 flex-shrink-0" />
           </div>
         </motion.div>
+      </div>
+
+      {/* Property Stats Bar */}
+      <div className="container mx-auto px-6 mb-16">
+        <div className="bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border border-zinc-100 p-8">
+          <div className="grid grid-cols-3 gap-4 md:gap-12">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex items-center gap-2 text-zinc-400 mb-2">
+                <Bed className="w-5 h-5" />
+                <span className="text-xs uppercase tracking-widest">Bedrooms</span>
+              </div>
+              <span className="text-2xl md:text-3xl font-serif text-zinc-900">{residence.features.beds}</span>
+            </div>
+            <div className="flex flex-col items-center justify-center text-center border-x border-zinc-100">
+              <div className="flex items-center gap-2 text-zinc-400 mb-2">
+                <Bath className="w-5 h-5" />
+                <span className="text-xs uppercase tracking-widest">Bathrooms</span>
+              </div>
+              <span className="text-2xl md:text-3xl font-serif text-zinc-900">{residence.features.baths}</span>
+            </div>
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex items-center gap-2 text-zinc-400 mb-2">
+                <Maximize className="w-5 h-5" />
+                <span className="text-xs uppercase tracking-widest">Square Feet</span>
+              </div>
+              <span className="text-2xl md:text-3xl font-serif text-zinc-900">{residence.features.sqft}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -235,7 +302,10 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
               >
                 <h3 className="text-2xl font-serif text-zinc-900 mb-8">Amenities & Features</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  {["Private Pool", "Ocean View", "Smart Home", "Wine Cellar", "Home Theater", "24/7 Security", "Private Gym", "Chef's Kitchen", "Spa"].map((feature, i) => (
+                  {(residence.amenities && residence.amenities.length > 0 
+                    ? residence.amenities 
+                    : ["Private Pool", "Ocean View", "Smart Home", "Wine Cellar", "Home Theater", "24/7 Security", "Private Gym", "Chef's Kitchen", "Spa"]
+                  ).map((feature, i) => (
                     <div key={i} className="flex items-center gap-3 p-4 bg-zinc-50 rounded-lg hover:bg-zinc-100 transition-colors">
                       <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-zinc-900">
                         <Check className="w-4 h-4" />
@@ -261,14 +331,15 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
                   </p>
                 </div>
                 <div className="w-full h-[400px] bg-zinc-100 rounded-2xl overflow-hidden shadow-inner border border-zinc-200 relative group">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    style={{ border: 0 }}
-                    src={mapsUrl}
-                    allowFullScreen
-                    className="grayscale group-hover:grayscale-0 transition-all duration-700"
+                  <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31617.11765243396!2d98.39225041711832!3d7.880447866832225!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x305031fd2d6380a3%3A0x8df88000bd82f66b!2z4LmA4LiX4Lio4Lia4Liy4Lil4LiZ4LiE4Lij4Lig4Li54LmA4LiB4LmH4LiVIOC4reC4s-C5gOC4oOC4reC5gOC4oeC4t-C4reC4h-C4oOC4ueC5gOC4geC5h-C4lSDguKDguLnguYDguIHguYfguJUgODMwMDA!5e0!3m2!1sth!2sth!4v1764690186667!5m2!1sth!2sth" 
+                    width="100%" 
+                    height="100%" 
+                    style={{ border: 0 }} 
+                    allowFullScreen 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="transition-all duration-700"
                   />
                   <div className="absolute inset-0 pointer-events-none border-4 border-white/50 rounded-2xl" />
                 </div>
@@ -287,33 +358,18 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
                 >
                   <div className="flex justify-between items-start mb-8">
                     <div>
-                      <p className="text-sm text-zinc-400 uppercase tracking-wider font-medium mb-1">Price per night</p>
+                      <p className="text-sm text-zinc-400 uppercase tracking-wider font-medium mb-1">Listing Price</p>
                       <div className="text-4xl font-serif text-zinc-900">{residence.price}</div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="p-2 rounded-full hover:bg-zinc-50 text-zinc-400 hover:text-red-500 transition-colors">
-                        <Heart className="w-5 h-5" />
-                      </button>
-                      <button className="p-2 rounded-full hover:bg-zinc-50 text-zinc-400 hover:text-zinc-900 transition-colors">
-                        <Share2 className="w-5 h-5" />
-                      </button>
                     </div>
                   </div>
 
                   <div className="space-y-4 mb-8">
-                    <div className="flex items-center gap-3 text-sm text-zinc-600">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="font-medium text-zinc-900">4.98</span>
-                      <span className="text-zinc-400">(128 reviews)</span>
-                    </div>
-                    <div className="h-px bg-zinc-100" />
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-500">Check-in</span>
-                      <span className="text-zinc-900 font-medium">3:00 PM</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-500">Check-out</span>
-                      <span className="text-zinc-900 font-medium">11:00 AM</span>
+                    <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-100">
+                      <p className="text-sm text-zinc-600 leading-relaxed">
+                        <span className="font-semibold text-zinc-900">Interested in this property?</span>
+                        <br />
+                        Schedule a private tour with our agents to experience the villa in person.
+                      </p>
                     </div>
                   </div>
                   
@@ -327,17 +383,13 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
                       className="w-full py-4 bg-zinc-900 text-white font-bold tracking-widest uppercase hover:bg-zinc-800 transition-all hover:shadow-lg hover:-translate-y-1 rounded-xl mb-4 flex items-center justify-center gap-2 group"
                     >
                       <Calendar className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                      Reserve Now
+                      Schedule Viewing
                     </button>
                   )}
                   
-                  <button className="w-full py-4 border border-zinc-200 text-zinc-600 font-bold tracking-widest uppercase hover:bg-zinc-50 hover:border-zinc-300 transition-colors rounded-xl text-xs">
-                    Contact Host
-                  </button>
-
                   <div className="mt-6 text-center">
                     <p className="text-xs text-zinc-400">
-                      You won't be charged yet
+                      Free consultation • No obligation
                     </p>
                   </div>
                 </motion.div>
@@ -348,8 +400,89 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
         </div>
       </section>
 
-      <Contact />
       <Footer />
+
+      {/* Lightbox Overlay */}
+      <AnimatePresence>
+        {isLightboxOpen && residence.subImages && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center"
+            onClick={closeLightbox}
+          >
+            {/* Close Button */}
+            <button
+              onClick={closeLightbox}
+              className="absolute top-6 right-6 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors z-50"
+            >
+              <X className="w-8 h-8" />
+            </button>
+
+            {/* Navigation Buttons */}
+            <button
+              onClick={prevImage}
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all hover:scale-110 z-50"
+            >
+              <ChevronLeft className="w-8 h-8" />
+            </button>
+
+            <button
+              onClick={nextImage}
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all hover:scale-110 z-50"
+            >
+              <ChevronRight className="w-8 h-8" />
+            </button>
+
+            {/* Main Image */}
+            <motion.div
+              key={currentLightboxIndex}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative w-full h-full max-w-7xl max-h-[90vh] p-4 flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative w-full h-full">
+                <Image
+                  src={residence.subImages[currentLightboxIndex]}
+                  alt={`Gallery image ${currentLightboxIndex + 1}`}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </motion.div>
+
+            {/* Image Counter */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/80 font-medium tracking-widest text-sm bg-black/50 px-4 py-2 rounded-full backdrop-blur-md">
+              {currentLightboxIndex + 1} / {residence.subImages.length}
+            </div>
+            
+            {/* Thumbnails Strip in Lightbox */}
+             <div className="absolute bottom-8 right-8 hidden lg:flex gap-2">
+                {residence.subImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentLightboxIndex(idx);
+                    }}
+                    className={`relative w-16 h-12 rounded-md overflow-hidden transition-all ${
+                      idx === currentLightboxIndex ? 'ring-2 ring-white scale-110' : 'opacity-50 hover:opacity-100'
+                    }`}
+                  >
+                    <Image src={img} alt="thumb" fill className="object-cover" />
+                  </button>
+                ))}
+            </div>
+
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
