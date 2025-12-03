@@ -59,7 +59,7 @@ export default function Navbar() {
             <button
               key={item}
               onClick={(e) => handleNavClick(e, item)}
-              className={`text-sm font-medium tracking-wide hover:opacity-70 transition-opacity ${
+              className={`cursor-pointer text-sm font-medium tracking-wide hover:opacity-70 transition-opacity ${
                 scrolled ? "text-zinc-900" : "text-white"
               }`}
             >
@@ -68,7 +68,7 @@ export default function Navbar() {
           ))}
           <button
             onClick={(e) => handleNavClick(e, "contact")}
-            className={`px-6 py-2 text-sm font-medium tracking-wide border transition-colors ${
+            className={`cursor-pointer px-6 py-2 text-sm font-medium tracking-wide border transition-colors ${
               scrolled
                 ? "border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white"
                 : "border-white text-white hover:bg-white hover:text-zinc-900"

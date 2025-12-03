@@ -98,9 +98,9 @@ export default function Hero({ residences = [] }: { residences?: Residence[] }) 
         </div>
 
         {/* Right/Bottom: Thumbnails Strip */}
-        <div className="lg:col-span-5 lg:col-start-8 flex flex-col justify-end pb-8">
-          <div className="w-full overflow-x-auto no-scrollbar pb-4">
-            <div className="flex gap-4 px-4 min-w-max">
+        <div className="lg:col-span-5 lg:col-start-8 flex flex-col justify-end pb-8 overflow-visible">
+          <div className="w-full max-w-full lg:max-w-[620px] xl:max-w-[720px] overflow-x-auto overflow-y-visible no-scrollbar pb-4">
+            <div className="flex gap-4 pl-4 pr-4">
               {heroResidences.map((residence, index) => (
                 <motion.div
                   key={residence.id}
@@ -134,16 +134,6 @@ export default function Hero({ residences = [] }: { residences?: Residence[] }) 
                   </div>
                 </motion.div>
               ))}
-              
-              {/* Scroll Indicator / "Half Box" */}
-              <div className="w-24 h-64 md:w-32 md:h-80 flex-shrink-0 flex items-center justify-center opacity-50">
-                <div className="flex flex-col items-center gap-2 text-white/50">
-                  <ArrowRight className="w-6 h-6 animate-pulse" />
-                  <span className="text-xs uppercase tracking-widest writing-vertical-rl rotate-180">
-                    Scroll for more
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
