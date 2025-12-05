@@ -17,11 +17,17 @@ export async function POST(request: Request) {
     const residenceName = residence ? residence.name : residenceId;
 
     let webName = "Villa";
+    let adminEmail = "onboarding@resend.dev"; // Default fallback
+
     try {
       const settingsRef = doc(db, "setting", "main");
       const settingsSnap = await getDoc(settingsRef);
       if (settingsSnap.exists()) {
-        webName = settingsSnap.data().webName || "Villa";
+        const data = settingsSnap.data();
+        webName = data.webName || "Villa";
+        if (data.email) {
+          adminEmail = data.email;
+        }
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -29,7 +35,7 @@ export async function POST(request: Request) {
 
     const result = await resend.emails.send({
       from: `${webName} <onboarding@resend.dev>`,
-      to: [email],
+      to: [adminEmail],
       subject: `New Reservation Request from ${name}`,
       html: `
         <h2>New Reservation Request</h2>
