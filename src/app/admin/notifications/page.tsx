@@ -5,7 +5,6 @@ import { useConnectedAccounts } from "@/hooks/useConnectedAccounts";
 import { Loader2, Bell } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import SendMailTest from "@/components/sendMailTest"
 
 export default function AdminNotifications() {
   const {
