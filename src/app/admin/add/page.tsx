@@ -27,12 +27,13 @@ export default function AddResidence() {
     beds: 0,
     baths: 0,
     sqft: 0,
+    mapIframe: "",
   });
 
-async function uploadImage(
-  file: File,
-  onProgress?: (progress: number) => void
-): Promise<string | null> {
+  async function uploadImage(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<string | null> {
   if (!file) return null;
 
   const fileRef = ref(storage, `images/${Date.now()}-${file.name}`);
@@ -158,6 +159,7 @@ async function uploadImage(
           sqft: Number(formData.sqft),
         },
         amenities: amenities,
+        mapIframe: formData.mapIframe,
         sold: false,
       });
       router.push("/admin");
@@ -324,6 +326,19 @@ async function uploadImage(
                   className="w-full border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm text-zinc-600 mb-1">Google Map Iframe</label>
+                <textarea
+                  name="mapIframe"
+                  value={formData.mapIframe}
+                  onChange={handleChange}
+                  placeholder='<iframe src="https://www.google.com/maps/embed?..." ...></iframe>'
+                  rows={4}
+                  className="w-full border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900 font-mono text-sm"
+                />
+                <p className="text-xs text-zinc-500 mt-1">Paste the full iframe code from Google Maps here.</p>
               </div>
 
               <div className="grid grid-cols-3 gap-4">

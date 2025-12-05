@@ -7,7 +7,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db, storage } from "@/firebase/firebase";
 import Link from "next/link";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Upload, X } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function EditResidence({ params }: { params: Promise<{ id: string }> }) {
@@ -27,7 +27,20 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
     beds: 0,
     baths: 0,
     sqft: 0,
+    mapIframe: "",
   });
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const [currentAmenity, setCurrentAmenity] = useState("");
+
+  const addAmenity = () => {
+    if (!currentAmenity.trim()) return;
+    setAmenities(prev => [...prev, currentAmenity.trim()]);
+    setCurrentAmenity("");
+  };
+
+  const removeAmenity = (index: number) => {
+    setAmenities(prev => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -56,8 +69,10 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
           beds: data.features.beds,
           baths: data.features.baths,
           sqft: data.features.sqft,
+          mapIframe: data.mapIframe || "",
         };
         setFormData(residenceData);
+        setAmenities(data.amenities || []);
         setImagePreview(data.image);
         toast.success("Residence data loaded successfully");
       } else {
@@ -137,6 +152,8 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
           baths: Number(formData.baths),
           sqft: Number(formData.sqft),
         },
+        mapIframe: formData.mapIframe,
+        amenities: amenities,
       });
       
       toast.success("Residence updated successfully!", { id: loadingToast });
@@ -261,6 +278,19 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
               />
             </div>
 
+            <div>
+              <label className="block text-sm text-zinc-600 mb-1">Google Map Iframe</label>
+              <textarea
+                name="mapIframe"
+                value={formData.mapIframe}
+                onChange={handleChange}
+                placeholder='<iframe src="https://www.google.com/maps/embed?..." ...></iframe>'
+                rows={4}
+                className="w-full border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900 font-mono text-sm"
+              />
+              <p className="text-xs text-zinc-500 mt-1">Paste the full iframe code from Google Maps here.</p>
+            </div>
+
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm text-zinc-600 mb-1">Bedrooms</label>
@@ -297,6 +327,42 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
                   required
                   min="0"
                 />
+              </div>
+            </div>
+
+            {/* Features Section */}
+            <div className="space-y-4 border-t border-zinc-100 pt-8">
+              <h2 className="text-lg font-medium text-zinc-900">Amenities & Features</h2>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={currentAmenity}
+                  onChange={(e) => setCurrentAmenity(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addAmenity())}
+                  placeholder="Add a feature (e.g., Private Pool)"
+                  className="flex-1 border border-zinc-300 p-2 focus:outline-none focus:border-zinc-900"
+                />
+                <button
+                  type="button"
+                  onClick={addAmenity}
+                  className="px-4 py-2 bg-zinc-100 text-zinc-900 font-medium hover:bg-zinc-200 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {amenities.map((amenity, idx) => (
+                  <span key={idx} className="inline-flex items-center gap-1 px-3 py-1 bg-zinc-50 border border-zinc-200 rounded-full text-sm text-zinc-700">
+                    {amenity}
+                    <button
+                      type="button"
+                      onClick={() => removeAmenity(idx)}
+                      className="hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
               </div>
             </div>
 

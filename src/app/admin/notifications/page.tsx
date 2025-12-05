@@ -187,7 +187,6 @@ export default function AdminNotifications() {
                   )}
                 </div>
               </div>
-              <SendMailTest/>
             </div>
           </motion.div>
         </div>

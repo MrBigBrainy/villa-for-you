@@ -1,15 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Settings, LogOut, Home, Bell } from "lucide-react";
 import { signOut } from "firebase/auth";
-import { auth } from "@/firebase/firebase";
+import { auth, db } from "@/firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [webName, setWebName] = useState("Villa Pik");
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const docRef = doc(db, "setting", "main");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setWebName(docSnap.data().webName || "Villa Pik");
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -25,7 +43,7 @@ export default function AdminSidebar() {
   return (
     <aside className="w-64 bg-white border-r border-zinc-200 h-screen fixed left-0 top-0 flex flex-col z-50 overflow-y-auto">
       <div className="p-8 border-b border-zinc-100">
-        <h1 className="text-2xl font-serif text-zinc-900">Villa Pik</h1>
+        <h1 className="text-2xl font-serif text-zinc-900">{webName}</h1>
         <p className="text-xs text-zinc-500 mt-1 uppercase tracking-wider">Admin Panel</p>
       </div>
 

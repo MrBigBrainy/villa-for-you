@@ -28,6 +28,7 @@ interface Residence {
     sqft: number;
   };
   amenities?: string[];
+  mapIframe?: string;
   sold?: boolean;
 }
 
@@ -331,16 +332,23 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
                   </p>
                 </div>
                 <div className="w-full h-[400px] bg-zinc-100 rounded-2xl overflow-hidden shadow-inner border border-zinc-200 relative group">
-                  <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31617.11765243396!2d98.39225041711832!3d7.880447866832225!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x305031fd2d6380a3%3A0x8df88000bd82f66b!2z4LmA4LiX4Lio4Lia4Liy4Lil4LiZ4LiE4Lij4Lig4Li54LmA4LiB4LmH4LiVIOC4reC4s-C5gOC4oOC4reC5gOC4oeC4t-C4reC4h-C4oOC4ueC5gOC4geC5h-C4lSDguKDguLnguYDguIHguYfguJUgODMwMDA!5e0!3m2!1sth!2sth!4v1764690186667!5m2!1sth!2sth" 
-                    width="100%" 
-                    height="100%" 
-                    style={{ border: 0 }} 
-                    allowFullScreen 
-                    loading="lazy" 
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="transition-all duration-700"
-                  />
+                  {residence.mapIframe ? (
+                    <div 
+                      className="w-full h-full [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:border-0"
+                      dangerouslySetInnerHTML={{ __html: residence.mapIframe }}
+                    />
+                  ) : (
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31617.11765243396!2d98.39225041711832!3d7.880447866832225!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x305031fd2d6380a3%3A0x8df88000bd82f66b!2z4LmA4LiX4Lio4Lia4Liy4Lil4LiZ4LiE4Lij4Lig4Li54LmA4LiB4LmH4LiVIOC4reC4s-C5gOC4oOC4reC5gOC4oeC4t-C4reC4h-C4oOC4ueC5gOC4geC5h-C4lSDguKDguLnguYDguIHguYfguJUgODMwMDA!5e0!3m2!1sth!2sth!4v1764690186667!5m2!1sth!2sth" 
+                      width="100%" 
+                      height="100%" 
+                      style={{ border: 0 }} 
+                      allowFullScreen 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="transition-all duration-700"
+                    />
+                  )}
                   <div className="absolute inset-0 pointer-events-none border-4 border-white/50 rounded-2xl" />
                 </div>
               </motion.div>
