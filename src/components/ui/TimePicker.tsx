@@ -29,6 +29,7 @@ export default function TimePicker({ selectedTime, onSelect, onClose }: TimePick
       <div className="p-2 space-y-1">
         {timeSlots.map((time) => (
           <button
+            type="button"
             key={time}
             onClick={() => {
               onSelect(time);

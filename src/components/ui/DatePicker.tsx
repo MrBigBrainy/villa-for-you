@@ -62,13 +62,13 @@ export default function DatePicker({ selectedDate, onSelect, onClose }: DatePick
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={prevMonth} className="p-1 hover:bg-zinc-800 rounded-full transition-colors text-zinc-400 hover:text-white">
+        <button type="button" onClick={prevMonth} className="p-1 hover:bg-zinc-800 rounded-full transition-colors text-zinc-400 hover:text-white">
           <ChevronLeft className="w-5 h-5" />
         </button>
         <span className="text-white font-serif font-medium">
           {currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
         </span>
-        <button onClick={nextMonth} className="p-1 hover:bg-zinc-800 rounded-full transition-colors text-zinc-400 hover:text-white">
+        <button type="button" onClick={nextMonth} className="p-1 hover:bg-zinc-800 rounded-full transition-colors text-zinc-400 hover:text-white">
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
@@ -93,6 +93,7 @@ export default function DatePicker({ selectedDate, onSelect, onClose }: DatePick
 
           return (
             <button
+              type="button"
               key={date.toISOString()}
               onClick={() => {
                 onSelect(date);
