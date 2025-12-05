@@ -133,7 +133,7 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
       <ReservationModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        residenceName={residence.name}
+        residenceId={residence.id}
       />
       
       {/* Hero Section */}
