@@ -160,7 +160,7 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="px-8 pb-8 pt-4 space-y-4 flex-1 flex flex-col overflow-y-auto">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative group">
                 <input
                   type="text"

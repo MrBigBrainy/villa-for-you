@@ -137,7 +137,7 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
       />
       
       {/* Hero Section */}
-      <div className="relative h-[85vh] w-full overflow-hidden">
+      <div className="relative h-[65vh] md:h-[85vh] w-full overflow-hidden">
         <motion.div 
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
@@ -170,7 +170,7 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-8 pb-24 md:px-16 md:pt-16 md:pb-32 text-white">
+        <div className="absolute bottom-0 left-0 right-0 p-6 pb-20 md:p-8 md:pb-24 lg:px-16 lg:pt-16 lg:pb-32 text-white">
           <div className="container mx-auto">
             <motion.div 
               initial="hidden"
@@ -178,17 +178,17 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
               variants={stagger}
               className="max-w-4xl"
             >
-              <motion.div variants={fadeIn} className="flex items-center gap-4 mb-4">
-                <span className="bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">
+              <motion.div variants={fadeIn} className="flex items-center gap-4 mb-3 md:mb-4">
+                <span className="bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full text-[10px] md:text-xs font-bold tracking-widest uppercase">
                   Exclusive
                 </span>
-                <div className="flex items-center text-sm font-medium tracking-wide">
-                  <MapPin className="w-4 h-4 mr-1" />
+                <div className="flex items-center text-xs md:text-sm font-medium tracking-wide">
+                  <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />
                   {residence.location}
                 </div>
               </motion.div>
               
-              <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl lg:text-8xl font-serif mb-6 leading-tight">
+              <motion.h1 variants={fadeIn} className="text-4xl md:text-7xl lg:text-8xl font-serif mb-4 md:mb-6 leading-tight">
                 {residence.name}
               </motion.h1>
             </motion.div>
@@ -197,7 +197,7 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
       </div>
 
       {/* Gallery Thumbs (Floating Horizontal) */}
-      <div className="container mx-auto px-6 -mt-12 lg:-mt-16 relative z-10 mb-12">
+      <div className="container mx-auto px-4 md:px-6 -mt-10 md:-mt-12 lg:-mt-16 relative z-10 mb-8 md:mb-12">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -205,7 +205,7 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
           transition={{ duration: 0.8 }}
         >
           <div 
-            className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar"
+            className="flex gap-3 md:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {residence.subImages?.map((img, idx) => (
@@ -215,7 +215,7 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
                   setActiveImage(img);
                   openLightbox(idx);
                 }}
-                className="relative flex-shrink-0 w-64 aspect-[4/3] rounded-xl overflow-hidden group snap-start cursor-zoom-in shadow-lg border-2 border-white"
+                className="relative flex-shrink-0 w-40 md:w-64 aspect-[4/3] rounded-xl overflow-hidden group snap-start cursor-zoom-in shadow-lg border-2 border-white"
                 whileHover={{ scale: 1.02, y: -5 }}
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -230,41 +230,44 @@ export default function ResidencePage({ params }: { params: Promise<{ id: string
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                   <Maximize className="w-8 h-8 text-white drop-shadow-lg" />
+                   <Maximize className="w-6 h-6 md:w-8 md:h-8 text-white drop-shadow-lg" />
                 </div>
               </motion.button>
             ))}
             
             {/* Spacer to show "half" effect if needed, or just padding */}
-            <div className="w-4 flex-shrink-0" />
+            <div className="w-2 md:w-4 flex-shrink-0" />
           </div>
         </motion.div>
       </div>
 
       {/* Property Stats Bar */}
-      <div className="container mx-auto px-6 mb-16">
-        <div className="bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border border-zinc-100 p-8">
-          <div className="grid grid-cols-3 gap-4 md:gap-12">
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="flex items-center gap-2 text-zinc-400 mb-2">
-                <Bed className="w-5 h-5" />
-                <span className="text-xs uppercase tracking-widest">Bedrooms</span>
+      <div className="container mx-auto px-4 md:px-6 mb-12 md:mb-16">
+        <div className="bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border border-zinc-100 p-5 md:p-8">
+          <div className="grid grid-cols-3 gap-2 md:gap-12 divide-x divide-zinc-100">
+            <div className="flex flex-col items-center justify-center text-center px-2">
+              <div className="flex items-center gap-1.5 md:gap-2 text-zinc-400 mb-1 md:mb-2">
+                <Bed className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="text-[10px] md:text-xs uppercase tracking-widest hidden md:inline">Bedrooms</span>
+                <span className="text-[10px] uppercase tracking-widest md:hidden">Beds</span>
               </div>
-              <span className="text-2xl md:text-3xl font-serif text-zinc-900">{residence.features.beds}</span>
+              <span className="text-xl md:text-3xl font-serif text-zinc-900">{residence.features.beds}</span>
             </div>
-            <div className="flex flex-col items-center justify-center text-center border-x border-zinc-100">
-              <div className="flex items-center gap-2 text-zinc-400 mb-2">
-                <Bath className="w-5 h-5" />
-                <span className="text-xs uppercase tracking-widest">Bathrooms</span>
+            <div className="flex flex-col items-center justify-center text-center px-2">
+              <div className="flex items-center gap-1.5 md:gap-2 text-zinc-400 mb-1 md:mb-2">
+                <Bath className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="text-[10px] md:text-xs uppercase tracking-widest hidden md:inline">Bathrooms</span>
+                <span className="text-[10px] uppercase tracking-widest md:hidden">Baths</span>
               </div>
-              <span className="text-2xl md:text-3xl font-serif text-zinc-900">{residence.features.baths}</span>
+              <span className="text-xl md:text-3xl font-serif text-zinc-900">{residence.features.baths}</span>
             </div>
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="flex items-center gap-2 text-zinc-400 mb-2">
-                <Maximize className="w-5 h-5" />
-                <span className="text-xs uppercase tracking-widest">Square Feet</span>
+            <div className="flex flex-col items-center justify-center text-center px-2">
+              <div className="flex items-center gap-1.5 md:gap-2 text-zinc-400 mb-1 md:mb-2">
+                <Maximize className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="text-[10px] md:text-xs uppercase tracking-widest hidden md:inline">Square Feet</span>
+                <span className="text-[10px] uppercase tracking-widest md:hidden">Sqft</span>
               </div>
-              <span className="text-2xl md:text-3xl font-serif text-zinc-900">{residence.features.sqft}</span>
+              <span className="text-xl md:text-3xl font-serif text-zinc-900">{residence.features.sqft}</span>
             </div>
           </div>
         </div>
