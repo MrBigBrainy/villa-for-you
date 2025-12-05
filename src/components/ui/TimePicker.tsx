@@ -24,7 +24,7 @@ export default function TimePicker({ selectedTime, onSelect, onClose }: TimePick
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
-      className="absolute z-30 top-full left-0 mt-2 w-full bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto no-scrollbar"
+      className="absolute z-30 top-full left-0 mt-2 w-full bg-white border border-zinc-200 rounded-xl shadow-xl overflow-hidden max-h-60 overflow-y-auto no-scrollbar"
     >
       <div className="p-2 space-y-1">
         {timeSlots.map((time) => (
@@ -38,8 +38,8 @@ export default function TimePicker({ selectedTime, onSelect, onClose }: TimePick
             className={`
               w-full px-4 py-2 rounded-lg text-sm flex items-center justify-between transition-colors
               ${selectedTime === time 
-                ? "bg-white text-black font-medium" 
-                : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                ? "bg-zinc-900 text-white font-medium" 
+                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
               }
             `}
           >

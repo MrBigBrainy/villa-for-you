@@ -136,42 +136,42 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: "spring", duration: 0.5 }}
-          className="relative bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
+          className="relative bg-white w-full max-w-2xl max-h-[90vh] min-h-[600px] flex flex-col rounded-2xl shadow-2xl overflow-hidden"
         >
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-zinc-100 px-8 pt-8 pb-4 z-10">
+          <div className="bg-white/80 backdrop-blur-md border-b border-zinc-100 px-8 py-4 z-10 shrink-0">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-3xl font-serif text-zinc-900 mb-2">
+                <h2 className="text-xl font-serif text-zinc-900 mb-1">
                   Schedule a Viewing
                 </h2>
-                <p className="text-sm text-zinc-500">
-                  Fill out the form below to request a private tour.
+                <p className="text-xs text-zinc-500">
+                  Request a private tour of this residence.
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-zinc-100 transition-all rounded-full text-zinc-400 hover:text-zinc-900"
+                className="p-1.5 hover:bg-zinc-100 transition-all rounded-full text-zinc-400 hover:text-zinc-900"
               >
-                <X className="w-6 h-6" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="px-8 pb-8 pt-4 space-y-8">
-            <div className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="px-8 pb-8 pt-4 space-y-4 flex-1 flex flex-col overflow-y-auto">
+            <div className="grid grid-cols-2 gap-4">
               <div className="relative group">
                 <input
                   type="text"
                   id="modal-name"
                   placeholder=" "
-                  className={`peer w-full bg-transparent border-b py-4 text-zinc-900 placeholder-transparent focus:outline-none focus:border-zinc-900 transition-colors ${errors.name ? 'border-red-500' : 'border-zinc-300'}`}
+                  className={`peer w-full bg-transparent border-b py-2 text-zinc-900 placeholder-transparent focus:outline-none focus:border-zinc-900 transition-colors ${errors.name ? 'border-red-500' : 'border-zinc-200'}`}
                   {...register("name", { required: "Name is required" })}
                 />
                 <label 
                   htmlFor="modal-name" 
-                  className="absolute left-0 top-4 text-zinc-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-zinc-900 peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-zinc-900 pointer-events-none"
+                  className="absolute left-0 top-2 text-zinc-500 text-xs transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-2 peer-focus:-top-2 peer-focus:text-[10px] peer-focus:text-zinc-900 peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-zinc-900 pointer-events-none"
                 >
                   Your Name {errors.name && <span className="text-red-500">*</span>}
                 </label>
@@ -182,7 +182,7 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
                   type="email"
                   id="modal-email"
                   placeholder=" "
-                  className={`peer w-full bg-transparent border-b py-4 text-zinc-900 placeholder-transparent focus:outline-none focus:border-zinc-900 transition-colors ${errors.email ? 'border-red-500' : 'border-zinc-300'}`}
+                  className={`peer w-full bg-transparent border-b py-2 text-zinc-900 placeholder-transparent focus:outline-none focus:border-zinc-900 transition-colors ${errors.email ? 'border-red-500' : 'border-zinc-200'}`}
                   {...register("email", { 
                     required: "Email is required",
                     pattern: {
@@ -193,7 +193,7 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
                 />
                 <label 
                   htmlFor="modal-email" 
-                  className="absolute left-0 top-4 text-zinc-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-zinc-900 peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-zinc-900 pointer-events-none"
+                  className="absolute left-0 top-2 text-zinc-500 text-xs transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-2 peer-focus:-top-2 peer-focus:text-[10px] peer-focus:text-zinc-900 peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-zinc-900 pointer-events-none"
                 >
                   Your Email {errors.email && <span className="text-red-500">*</span>}
                 </label>
@@ -208,15 +208,15 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
                 const selectedResidenceName = residences.find(r => r.id === field.value)?.name || "Select Residence";
                 return (
                   <div className="relative">
-                    <label className="text-xs text-zinc-500 uppercase tracking-wider mb-2 block">Interested Residence</label>
+                    <label className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1 block font-medium">Interested Residence</label>
                     <div 
                       onClick={() => setIsSelectOpen(!isSelectOpen)}
-                      className={`w-full bg-transparent border-b py-4 flex items-center justify-between cursor-pointer group hover:border-zinc-500 transition-colors ${isSelectOpen ? 'border-zinc-900' : 'border-zinc-300'}`}
+                      className={`w-full bg-transparent border-b py-2 flex items-center justify-between cursor-pointer group hover:border-zinc-400 transition-colors ${isSelectOpen ? 'border-zinc-900' : 'border-zinc-200'}`}
                     >
-                      <span className={field.value ? "text-zinc-900" : "text-zinc-500"}>
+                      <span className={`text-sm ${field.value ? "text-zinc-900" : "text-zinc-400"}`}>
                         {selectedResidenceName}
                       </span>
-                      <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform duration-300 ${isSelectOpen ? "rotate-180 text-zinc-900" : "group-hover:text-zinc-900"}`} />
+                      <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-300 ${isSelectOpen ? "rotate-180 text-zinc-900" : "group-hover:text-zinc-600"}`} />
                     </div>
                     
                     <AnimatePresence>
@@ -225,7 +225,7 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          className="absolute z-20 top-full left-0 right-0 mt-2 bg-white border border-zinc-200 rounded-lg shadow-xl overflow-hidden max-h-60 overflow-y-auto"
+                          className="absolute z-20 top-full left-0 right-0 mt-2 bg-white border border-zinc-100 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto"
                         >
                           {residences.map((res) => (
                             <div
@@ -234,10 +234,10 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
                                 field.onChange(res.id);
                                 setIsSelectOpen(false);
                               }}
-                              className="px-4 py-3 cursor-pointer hover:bg-zinc-50 transition-colors flex items-center justify-between group"
+                              className="px-4 py-2 cursor-pointer hover:bg-zinc-50 transition-colors flex items-center justify-between group"
                             >
-                              <span className="text-zinc-600 group-hover:text-zinc-900 transition-colors">{res.name}</span>
-                              {field.value === res.id && <Check className="w-4 h-4 text-zinc-900" />}
+                              <span className="text-zinc-600 group-hover:text-zinc-900 transition-colors text-xs">{res.name}</span>
+                              {field.value === res.id && <Check className="w-3 h-3 text-zinc-900" />}
                             </div>
                           ))}
                         </motion.div>
@@ -248,30 +248,30 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
               }}
             />
 
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-2 gap-4">
               {/* Custom Date Picker */}
               <Controller
                 control={control}
                 name="date"
                 render={({ field }) => {
                   const formattedDate = field.value 
-                    ? field.value.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                    ? field.value.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                     : "";
                   return (
                     <div className="relative" ref={dateRef}>
-                      <label className="text-xs text-zinc-500 uppercase tracking-wider mb-2 block">Preferred Date</label>
+                      <label className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1 block font-medium">Preferred Date</label>
                       <div 
                         onClick={() => setIsDateOpen(!isDateOpen)}
-                        className={`relative flex items-center justify-between border-b py-3 cursor-pointer group hover:border-zinc-500 transition-colors ${isDateOpen ? 'border-zinc-900' : 'border-zinc-300'}`}
+                        className={`relative flex items-center justify-between border-b py-2 cursor-pointer group hover:border-zinc-400 transition-colors ${isDateOpen ? 'border-zinc-900' : 'border-zinc-200'}`}
                       >
-                        <span className={field.value ? "text-zinc-900" : "text-zinc-500"}>
+                        <span className={`text-sm ${field.value ? "text-zinc-900" : "text-zinc-400"}`}>
                           {formattedDate || "Select Date"}
                         </span>
-                        <Calendar className={`w-4 h-4 text-zinc-500 transition-colors ${isDateOpen ? "text-zinc-900" : "group-hover:text-zinc-900"}`} />
+                        <Calendar className={`w-3.5 h-3.5 text-zinc-400 transition-colors ${isDateOpen ? "text-zinc-900" : "group-hover:text-zinc-600"}`} />
                       </div>
                       <AnimatePresence>
                         {isDateOpen && (
-                          <div className="absolute z-30 top-full left-0 mt-2">
+                          <div className="absolute z-30 top-full left-0 mt-2 w-full min-w-[280px]">
                              <DatePicker 
                               selectedDate={field.value} 
                               onSelect={(date) => {
@@ -294,19 +294,19 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
                 name="time"
                 render={({ field }) => (
                   <div className="relative" ref={timeRef}>
-                    <label className="text-xs text-zinc-500 uppercase tracking-wider mb-2 block">Preferred Time</label>
+                    <label className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1 block font-medium">Preferred Time</label>
                     <div 
                       onClick={() => setIsTimeOpen(!isTimeOpen)}
-                      className={`relative flex items-center justify-between border-b py-3 cursor-pointer group hover:border-zinc-500 transition-colors ${isTimeOpen ? 'border-zinc-900' : 'border-zinc-300'}`}
+                      className={`relative flex items-center justify-between border-b py-2 cursor-pointer group hover:border-zinc-400 transition-colors ${isTimeOpen ? 'border-zinc-900' : 'border-zinc-200'}`}
                     >
-                      <span className={field.value ? "text-zinc-900" : "text-zinc-500"}>
+                      <span className={`text-sm ${field.value ? "text-zinc-900" : "text-zinc-400"}`}>
                         {field.value || "Select Time"}
                       </span>
-                      <Clock className={`w-4 h-4 text-zinc-500 transition-colors ${isTimeOpen ? "text-zinc-900" : "group-hover:text-zinc-900"}`} />
+                      <Clock className={`w-3.5 h-3.5 text-zinc-400 transition-colors ${isTimeOpen ? "text-zinc-900" : "group-hover:text-zinc-600"}`} />
                     </div>
                     <AnimatePresence>
                       {isTimeOpen && (
-                        <div className="absolute z-30 top-full left-0 mt-2">
+                        <div className="absolute z-30 top-full left-0 mt-2 w-full min-w-[150px]">
                           <TimePicker 
                             selectedTime={field.value} 
                             onSelect={(time) => {
@@ -326,28 +326,28 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
             <div className="relative group">
               <textarea
                 id="modal-message"
-                rows={4}
+                rows={5}
                 placeholder=" "
-                className="peer w-full bg-transparent border-b border-zinc-300 py-4 text-zinc-900 placeholder-transparent focus:outline-none focus:border-zinc-900 transition-colors resize-none"
+                className="peer w-full bg-transparent border-b border-zinc-200 py-2 text-zinc-900 placeholder-transparent focus:outline-none focus:border-zinc-900 transition-colors resize-none"
                 {...register("message")}
               ></textarea>
               <label 
                 htmlFor="modal-message" 
-                className="absolute left-0 top-4 text-zinc-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-zinc-900 peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-zinc-900 pointer-events-none"
+                className="absolute left-0 top-2 text-zinc-500 text-xs transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-2 peer-focus:-top-2 peer-focus:text-[10px] peer-focus:text-zinc-900 peer-[:not(:placeholder-shown)]:-top-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-zinc-900 pointer-events-none"
               >
                 Your Message
               </label>
             </div>
 
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-3 pt-2 mt-auto">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 bg-zinc-900 text-white py-4 font-bold tracking-widest uppercase hover:bg-zinc-800 transition-all rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 bg-zinc-900 text-white py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-zinc-800 transition-all rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-zinc-900/10"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                     Sending...
                   </>
                 ) : (
@@ -357,7 +357,7 @@ export default function ReservationModal({ isOpen, onClose, residenceId }: Reser
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 border border-zinc-300 text-zinc-900 py-4 font-bold tracking-widest uppercase hover:bg-zinc-50 transition-all rounded-lg"
+                className="flex-1 border border-zinc-200 text-zinc-600 py-2.5 text-xs font-bold tracking-widest uppercase hover:bg-zinc-50 hover:text-zinc-900 hover:border-zinc-300 transition-all rounded-lg"
               >
                 Cancel
               </button>
