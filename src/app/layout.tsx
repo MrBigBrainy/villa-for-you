@@ -16,8 +16,8 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "Villa Pik | Luxury Living",
-  description: "Experience the epitome of luxury at Villa Pik.",
+  title: "Villa | Luxury Living",
+  description: "Experience the epitome of luxury at Villa.",
 };
 
 export default function RootLayout({

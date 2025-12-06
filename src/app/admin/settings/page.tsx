@@ -16,7 +16,7 @@ interface SiteSettings {
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState<SiteSettings>({
-    webName: "Villa Pik",
+    webName: "Villa",
     address: "Phuket, Thailand",
     email: "pikpik@villapik.com",
     phone: "+66 123 456 789",
@@ -102,7 +102,7 @@ export default function AdminSettings() {
                     value={settings.webName}
                     onChange={(e) => setSettings({ ...settings, webName: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all"
-                    placeholder="e.g. Villa Pik"
+                    placeholder="e.g. Villa"
                   />
                   <p className="text-xs text-zinc-500 mt-2">
                     This name will appear in the navbar and footer.

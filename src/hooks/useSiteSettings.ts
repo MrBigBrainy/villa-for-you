@@ -12,7 +12,7 @@ interface SiteSettings {
 }
 
 const defaultSettings: SiteSettings = {
-  webName: "Villa Pik",
+  webName: "Villa",
   address: "Phuket, Thailand",
   email: "pikpik@villapik.com",
   phone: "+66 123 456 789",

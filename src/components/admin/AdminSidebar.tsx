@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [webName, setWebName] = useState("Villa Pik");
+  const [webName, setWebName] = useState("Villa");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -20,7 +20,7 @@ export default function AdminSidebar() {
         const docRef = doc(db, "setting", "main");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setWebName(docSnap.data().webName || "Villa Pik");
+          setWebName(docSnap.data().webName || "Villa");
         }
       } catch (error) {
         console.error("Error fetching settings:", error);

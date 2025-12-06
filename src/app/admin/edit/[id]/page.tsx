@@ -4,10 +4,10 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { auth, db, storage } from "@/firebase/firebase";
 import Link from "next/link";
-import { ArrowLeft, Upload, X } from "lucide-react";
+import { ArrowLeft, X, Plus, Image as ImageIcon, Upload } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function EditResidence({ params }: { params: Promise<{ id: string }> }) {
@@ -15,8 +15,11 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
+  
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -73,7 +76,8 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
         };
         setFormData(residenceData);
         setAmenities(data.amenities || []);
-        setImagePreview(data.image);
+        setImageUrl(data.image || "");
+        setGalleryUrls(data.subImages || []);
         toast.success("Residence data loaded successfully");
       } else {
         toast.error("Residence not found");
@@ -87,43 +91,86 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  async function uploadImage(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<string | null> {
+    if (!file) return null;
+
+    const fileRef = ref(storage, `images/${Date.now()}-${file.name}`);
+    const uploadTask = uploadBytesResumable(fileRef, file);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          if (onProgress) onProgress(progress);
+        },
+        (error) => {
+          console.error("Upload error:", error);
+          reject(error);
+        },
+        async () => {
+          const url = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(url);
+        }
+      );
+    });
+  }
+
+  const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error("Image size should be less than 5MB");
-        return;
-      }
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setUploading(true);
+    setUploadProgress(0);
+    try {
+      const url = await uploadImage(file, (progress) => setUploadProgress(progress));
+      if (url) setImageUrl(url);
+      toast.success("Main image uploaded");
+    } catch (error) {
+      console.error("Error uploading main image:", error);
+      toast.error("Failed to upload image");
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
     }
   };
 
-  const uploadImage = async (): Promise<string> => {
-    if (!imageFile) return formData.image;
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
+    setUploadProgress(0);
     try {
-      const timestamp = Date.now();
-      const fileName = `residences/${timestamp}_${imageFile.name}`;
-      const storageRef = ref(storage, fileName);
+      const totalFiles = files.length;
+      let completedFiles = 0;
       
-      await uploadBytes(storageRef, imageFile);
-      const downloadURL = await getDownloadURL(storageRef);
-      
-      toast.success("Image uploaded successfully");
-      return downloadURL;
+      const uploadPromises = Array.from(files).map(file => 
+        uploadImage(file).then(url => {
+          completedFiles++;
+          setUploadProgress((completedFiles / totalFiles) * 100);
+          return url;
+        })
+      );
+
+      const urls = await Promise.all(uploadPromises);
+      const validUrls = urls.filter((url): url is string => url !== null);
+      setGalleryUrls(prev => [...prev, ...validUrls]);
+      toast.success(`${validUrls.length} images added to gallery`);
     } catch (error) {
-      console.error("Error uploading image:", error);
-      toast.error("Failed to upload image");
-      throw error;
+      console.error("Error uploading gallery images:", error);
+      toast.error("Failed to upload gallery images");
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,12 +180,8 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
     const loadingToast = toast.loading("Updating residence...");
 
     try {
-      let imageUrl = formData.image;
-      
-      // Upload new image if selected
-      if (imageFile) {
-        imageUrl = await uploadImage();
-      }
+      // Image is already uploaded and stored in imageUrl state
+
 
       const docRef = doc(db, "residences", id);
       await updateDoc(docRef, {
@@ -146,6 +189,7 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
         description: formData.description,
         price: formData.price,
         image: imageUrl,
+        subImages: galleryUrls,
         location: formData.location,
         features: {
           beds: Number(formData.beds),
@@ -199,33 +243,87 @@ export default function EditResidence({ params }: { params: Promise<{ id: string
 
         <form onSubmit={handleSubmit} className="bg-white border border-zinc-200 p-8">
           <div className="space-y-6">
-            {/* Image Upload */}
-            <div>
-              <label className="block text-sm text-zinc-600 mb-2">Residence Image</label>
-              {imagePreview && (
-                <div className="mb-4 relative w-full h-48 bg-zinc-100">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              <div className="flex items-center gap-4">
-                <label className="flex-1 cursor-pointer">
-                  <div className="flex items-center justify-center gap-2 border border-zinc-300 p-3 hover:bg-zinc-50 transition-colors">
-                    <Upload className="w-4 h-4" />
-                    <span className="text-sm">Choose New Image</span>
+            {/* Media Section */}
+            <div className="space-y-6 border-b border-zinc-100 pb-8">
+              <h2 className="text-lg font-medium text-zinc-900">Media</h2>
+              
+              {/* Main Image */}
+              <div>
+                <label className="block text-sm text-zinc-600 mb-2">Main Image</label>
+                <div className="space-y-4">
+                  {imageUrl ? (
+                    <div className="relative w-full aspect-video bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-lg overflow-hidden group">
+                      <img src={imageUrl} alt="Main" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button 
+                          type="button"
+                          onClick={() => setImageUrl("")}
+                          className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative w-full aspect-video bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-lg flex flex-col items-center justify-center text-zinc-400">
+                      <ImageIcon className="w-12 h-12 mb-2" />
+                      <span className="text-sm">No image selected</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-4">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleMainImageUpload} 
+                      className="hidden" 
+                      id="main-image-upload"
+                    />
+                    <label 
+                      htmlFor="main-image-upload"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-md cursor-pointer hover:bg-zinc-800 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      {imageUrl ? "Change Image" : "Upload Main Image"}
+                    </label>
+                    {uploading && (
+                      <span className="text-sm text-zinc-500 font-medium">
+                        Uploading... {Math.round(uploadProgress)}%
+                      </span>
+                    )}
                   </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </label>
+                </div>
               </div>
-              <p className="text-xs text-zinc-500 mt-2">Max file size: 5MB. Supported formats: JPG, PNG, WebP</p>
+
+              {/* Gallery */}
+              <div>
+                <label className="block text-sm text-zinc-600 mb-2">Gallery Images</label>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  {galleryUrls.map((url, idx) => (
+                    <div key={idx} className="relative aspect-square bg-zinc-50 rounded-lg overflow-hidden group">
+                      <img src={url} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                      <button 
+                        type="button"
+                        onClick={() => removeGalleryImage(idx)}
+                        className="absolute top-1 right-1 p-1 bg-black/50 hover:bg-black/70 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  <label className="aspect-square border-2 border-dashed border-zinc-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-zinc-400 hover:bg-zinc-50 transition-colors">
+                    <Plus className="w-6 h-6 text-zinc-300 mb-1" />
+                    <span className="text-xs text-zinc-400">Add</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      multiple 
+                      onChange={handleGalleryUpload} 
+                      className="hidden" 
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
 
             <div>

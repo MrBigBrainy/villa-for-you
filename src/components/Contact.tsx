@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { residences } from "@/data/residences";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, ChevronDown, Check, Loader2 } from "lucide-react";
 import DatePicker from "./ui/DatePicker";
@@ -20,7 +20,11 @@ interface ContactFormData {
   message: string;
 }
 
-export default function Contact() {
+interface ContactProps {
+  residences: any[];
+}
+
+export default function Contact({ residences }: ContactProps) {
   const { settings } = useSiteSettings();
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [isDateOpen, setIsDateOpen] = useState(false);
@@ -100,7 +104,7 @@ export default function Contact() {
               Begin Your Journey
             </h2>
             <p className="text-zinc-400 font-light leading-relaxed mb-12 text-lg">
-              Ready to experience the extraordinary? Contact us to schedule a viewing or request more information about Villa Pik.
+              Ready to experience the extraordinary? Contact us to schedule a viewing or request more information about Villa.
             </p>
             
             <div className="space-y-8">

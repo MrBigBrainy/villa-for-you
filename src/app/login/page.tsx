@@ -87,7 +87,7 @@ export default function Login() {
         </form>
 
         <p className="mt-8 text-center text-sm text-zinc-500">
-          New to Villa Pik?{" "}
+          New to Villa?{" "}
           <Link href="/register" className="text-zinc-900 font-medium hover:underline decoration-2 underline-offset-4">
             Create Account
           </Link>

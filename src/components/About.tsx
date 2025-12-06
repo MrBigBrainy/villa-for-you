@@ -21,7 +21,7 @@ export default function About() {
               A Sanctuary for the Senses
             </h2>
             <p className="text-zinc-600 leading-relaxed mb-6 text-lg font-light">
-              Villa Pik is more than just a residence; it is a masterpiece of design and comfort. Nestled in a secluded paradise, our villa offers an unparalleled blend of modern luxury and natural beauty.
+              Villa is more than just a residence; it is a masterpiece of design and comfort. Nestled in a secluded paradise, our villa offers an unparalleled blend of modern luxury and natural beauty.
             </p>
             <p className="text-zinc-600 leading-relaxed mb-8 text-lg font-light">
               Every detail has been meticulously crafted to ensure your stay is nothing short of perfection. From the expansive living spaces to the private infinity pool, every moment here is a memory in the making.
