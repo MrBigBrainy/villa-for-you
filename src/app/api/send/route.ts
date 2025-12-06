@@ -1,12 +1,13 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 import { residences } from "../../../data/residences";
 import { db } from "@/firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 export async function POST(request: Request) {
+const resend = new Resend("re_Y8UGnT7r_tTh58aGzb65fzYFACfKxwYLZ");
+
   try {
     const body = await request.json();
     const { name, email, residenceId, date, time, message } = body;
